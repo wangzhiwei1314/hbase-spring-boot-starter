@@ -8,7 +8,7 @@ import java.util.Random;
 
 /**
  * @author Austin Wong
- * @description todo
+ * @description Hbase 工具类
  * @date 2022/3/30 14:28
  * @since JDK1.8
  */
@@ -63,8 +63,7 @@ public class HBaseUtil {
     }
 
 
-    public static String highCaseFirstWord(String word) {
-        String first = word.substring(0, 1).toUpperCase();
-        return first + word.substring(1);
+    public static String upperCaseFirstLetter(String word) {
+        return word.substring(0, 1).toUpperCase() + word.substring(1);
     }
 }

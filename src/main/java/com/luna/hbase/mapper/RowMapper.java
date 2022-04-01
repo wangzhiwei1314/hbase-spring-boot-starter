@@ -1,6 +1,7 @@
-package com.luna.hbase.definition;
+package com.luna.hbase.mapper;
 
 import com.luna.hbase.annotation.HbaseColumn;
+import com.luna.hbase.api.Mapper;
 import com.luna.hbase.utils.HBaseUtil;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
@@ -28,8 +29,10 @@ public class RowMapper<T> implements Mapper<T> {
     @Override
     @SuppressWarnings("unchecked")
     public T mapping(Result result) throws Exception {
+        Assert.notNull(result, "Result could not be null!");
+
         Class<?> clazz = ResolvableType.forClass(this.getClass()).getSuperType().getGeneric(0).resolve();
-        Assert.notNull(clazz, "class could not be null");
+        Assert.notNull(clazz, "Class could not be null!");
 
         T entity = (T) clazz.newInstance();
         List<Cell> cells = result.listCells();
@@ -45,7 +48,7 @@ public class RowMapper<T> implements Mapper<T> {
                     String columnName = hbaseColumn.value();
                     // 如果和列名相等，则获取set方法进行赋值
                     if (column.equals(columnName)) {
-                        String setMethodName = "set" + HBaseUtil.highCaseFirstWord(field.getName());
+                        String setMethodName = "set" + HBaseUtil.upperCaseFirstLetter(field.getName());
                         // 注意set方法一定要带上参数，否则获取不到，因为不带参数默认寻找无参方法。
                         Method setMethod = ReflectionUtils.findMethod(clazz, setMethodName, field.getType());
                         try {

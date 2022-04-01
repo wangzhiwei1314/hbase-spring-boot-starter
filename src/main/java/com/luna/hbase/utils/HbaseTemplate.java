@@ -1,8 +1,8 @@
 package com.luna.hbase.utils;
 
-import com.luna.hbase.definition.HbaseCallback;
-import com.luna.hbase.definition.HbaseOperation;
-import com.luna.hbase.definition.Mapper;
+import com.luna.hbase.api.HbaseCallback;
+import com.luna.hbase.api.HbaseOperation;
+import com.luna.hbase.api.Mapper;
 import com.luna.hbase.entity.HbaseCell;
 import com.luna.hbase.exception.HbaseException;
 import org.apache.commons.pool2.impl.GenericObjectPool;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Austin Wong
- * @description HBaseTemplate
+ * @description HBase Template
  * @date 2022/3/30 15:52
  * @since JDK1.8
  */
@@ -40,7 +40,7 @@ public class HbaseTemplate implements HbaseOperation {
             Admin admin = connection.getAdmin();
             TableName name = TableName.valueOf(tableName);
             if (admin.tableExists(name)) {
-                log.warn("table exist!");
+                log.warn("table {} already exist!", name);
                 return false;
             }
 
@@ -75,25 +75,26 @@ public class HbaseTemplate implements HbaseOperation {
     public Map<String, List<HbaseCell>> scan(String tableName, Scan scan) {
         return this.execute(connection -> {
             Map<String, List<HbaseCell>> result;
-            Table table;
             result = new HashMap<>(16);
-            table = connection.getTable(TableName.valueOf(tableName));
-            ResultScanner scanner = table.getScanner(scan);
+            try (Table table = connection.getTable(TableName.valueOf(tableName))){
+                ResultScanner scanner = table.getScanner(scan);
 
-            for (Result i : scanner) {
-                String rowKey = null;
-                List<HbaseCell> row = new ArrayList<>();
-                for (Cell cell : i.listCells()) {
-                    // rowKey
-                    if (Objects.isNull(rowKey)) {
-                        rowKey = Bytes.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
+                for (Result i : scanner) {
+                    String rowKey = null;
+                    List<HbaseCell> row = new ArrayList<>();
+                    for (Cell cell : i.listCells()) {
+                        // rowKey
+                        if (Objects.isNull(rowKey)) {
+                            rowKey = HBaseUtil.rowKey(cell);
+                        }
+                        HbaseCell hBaseCell = new HbaseCell(rowKey, HBaseUtil.family(cell), HBaseUtil.column(cell), HBaseUtil.value(cell));
+                        row.add(hBaseCell);
                     }
-                    HbaseCell hBaseCell = new HbaseCell(rowKey, HBaseUtil.family(cell), HBaseUtil.column(cell), HBaseUtil.value(cell));
-                    row.add(hBaseCell);
+                    result.put(rowKey, row);
                 }
-                result.put(rowKey, row);
+            } catch (IOException e) {
+                log.error("An exception occurred while scanning table", e);
             }
-            table.close();
             return result;
         });
     }
@@ -101,16 +102,17 @@ public class HbaseTemplate implements HbaseOperation {
     @Override
     public <T> List<T> list(String tableName, Scan scan, Mapper<T> mapper) {
         return this.execute(connection -> {
-            List<T> result = new ArrayList<>();
-            Table table;
-            table = connection.getTable(TableName.valueOf(tableName));
-            ResultScanner scanner = table.getScanner(scan);
+            List<T> list = new ArrayList<>();
+            try (Table table = connection.getTable(TableName.valueOf(tableName))){
+                ResultScanner resultScanners = table.getScanner(scan);
+                for (Result result : resultScanners) {
+                    list.add(mapper.mapping(result));
+                }
 
-            for (Result i : scanner) {
-                result.add(mapper.mapping(i));
+            } catch (IOException e) {
+                log.error("An exception occurred when list table", e);
             }
-            table.close();
-            return result;
+            return list;
         });
     }
 
@@ -127,16 +129,16 @@ public class HbaseTemplate implements HbaseOperation {
     @Override
     public void put(String tableName, String rowKey, String columnFamily, String[] columnQualifiers, String[] values) {
         this.execute(connection -> {
-            Table table = connection.getTable(TableName.valueOf(tableName));
-
-            Put put = new Put(Bytes.toBytes(rowKey));
-            for (int i = 0, columnQualifiersLength = columnQualifiers.length; i < columnQualifiersLength; i++) {
-                String columnQualifier = columnQualifiers[i];
-                put.addColumn(Bytes.toBytes(columnFamily), Bytes.toBytes(columnQualifier), Bytes.toBytes(values[i]));
+            try (Table table = connection.getTable(TableName.valueOf(tableName))){
+                Put put = new Put(Bytes.toBytes(rowKey));
+                for (int i = 0, columnQualifiersLength = columnQualifiers.length; i < columnQualifiersLength; i++) {
+                    String columnQualifier = columnQualifiers[i];
+                    put.addColumn(Bytes.toBytes(columnFamily), Bytes.toBytes(columnQualifier), Bytes.toBytes(values[i]));
+                }
+                table.put(put);
+            } catch (IOException e) {
+                log.error("An exception occurred when put row into table", e);
             }
-
-            table.put(put);
-            table.close();
             return null;
         });
     }
@@ -151,9 +153,13 @@ public class HbaseTemplate implements HbaseOperation {
     @Override
     public void delete(String tableName, String rowKey) {
         this.execute(connection -> {
-            Table table = connection.getTable(TableName.valueOf(tableName));
-            Delete delete = new Delete(rowKey.getBytes());
-            table.delete(delete);
+            try (Table table = connection.getTable(TableName.valueOf(tableName))){
+                Delete delete = new Delete(rowKey.getBytes());
+                table.delete(delete);
+            } catch (IOException e) {
+                log.error("An exception occurred when delete row", e);
+            }
+
             return null;
         });
     }
@@ -163,18 +169,21 @@ public class HbaseTemplate implements HbaseOperation {
     public List<HbaseCell> find(String tableName, String rowKey) {
         return this.execute(connection -> {
             List<HbaseCell> list = new ArrayList<>();
-            Table table = connection.getTable(TableName.valueOf(tableName));
-            Get get = new Get(rowKey.getBytes());
-            Result result = table.get(get);
-
-            for (Cell cell : result.rawCells()) {
-                String family = Bytes.toString(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength());
-                String column = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-                String value = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-                log.info("family:{},column:{},value:{}", family, column, value);
-                HbaseCell baseCell = new HbaseCell(rowKey, family, column, value);
-                list.add(baseCell);
+            try (Table table = connection.getTable(TableName.valueOf(tableName));){
+                Get get = new Get(rowKey.getBytes());
+                Result result = table.get(get);
+                for (Cell cell : result.rawCells()) {
+                    String family = Bytes.toString(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength());
+                    String column = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                    String value = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                    log.info("family:{},column:{},value:{}", family, column, value);
+                    HbaseCell baseCell = new HbaseCell(rowKey, family, column, value);
+                    list.add(baseCell);
+                }
+            } catch (IOException e) {
+                log.error("An exception occurred when find row", e);
             }
+
             return list;
         });
     }
@@ -182,24 +191,32 @@ public class HbaseTemplate implements HbaseOperation {
     @Override
     public <T> T get(String tableName, String rowKey, Mapper<T> mapper) {
         return this.execute(connection -> {
-            Table table = connection.getTable(TableName.valueOf(tableName));
-            Get get = new Get(rowKey.getBytes());
-            Result result = table.get(get);
-            return mapper.mapping(result);
+            try (Table table = connection.getTable(TableName.valueOf(tableName))){
+                Get get = new Get(rowKey.getBytes());
+                Result result = table.get(get);
+                return mapper.mapping(result);
+            } catch (IOException e) {
+                log.error("An exception occurred when get row", e);
+            }
+
+            return null;
         });
     }
 
     @Override
     public String get(String tableName, String rowKey, String family, String column) {
         return this.execute(connection -> {
-            Table table = connection.getTable(TableName.valueOf(tableName));
-            Get get = new Get(rowKey.getBytes());
-            get.addColumn(family.getBytes(), column.getBytes());
-            Result result = table.get(get);
-            Cell cell = result.listCells().stream().findFirst().orElse(null);
-            table.close();
-            if (Objects.nonNull(cell)) {
-                return HBaseUtil.value(cell);
+            try (Table table = connection.getTable(TableName.valueOf(tableName));){
+                Get get = new Get(rowKey.getBytes());
+                get.addColumn(family.getBytes(), column.getBytes());
+                Result result = table.get(get);
+                Cell cell = result.listCells().stream().findFirst().orElse(null);
+                table.close();
+                if (Objects.nonNull(cell)) {
+                    return HBaseUtil.value(cell);
+                }
+            } catch (IOException e) {
+                log.error("An exception occurred when get value", e);
             }
             return null;
         });
@@ -207,14 +224,14 @@ public class HbaseTemplate implements HbaseOperation {
 
     @Override
     public <T> T execute(HbaseCallback<T> callback) {
-        Assert.notNull(callback, "Callback object must not be null");
+        Assert.notNull(callback, "Callback of Hbase must not be null");
 
         Connection connection = null;
         try {
             connection = pool.borrowObject();
             return callback.doInHbase(connection);
         } catch (Exception e) {
-            throw new HbaseException("操作HBase发生异常", e);
+            throw new HbaseException("An exception occurred when operate HBase via connection", e);
         } finally {
             if (Objects.nonNull(connection)) {
                 pool.returnObject(connection);
