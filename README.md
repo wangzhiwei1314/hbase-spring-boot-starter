@@ -1,11 +1,15 @@
 ##hbase-spring-boot-starter说明
+
 由于spring-boot组件缺乏对Hbase的支持，因此封装该starter，提高java语言使用hbase的效率
 
 ###使用要求
+
 spring-boot版本：不低于2.1.0.RELEASE
+
 JDK版本：不低于1.8
 
 ###使用说明
+
 1.引入依赖
 
     <dependency>
@@ -13,6 +17,7 @@ JDK版本：不低于1.8
         <artifactId>hbase-spring-boot-starter</artifactId>
         <version>1.0.0.RELEASE</version>
     </dependency>
+    
 2.编写java对象，注意属性必须是String类型，属性上增加@HbaseColumn注解，如
 
     @HbaseColumn("AREA_NAME_")
@@ -27,11 +32,11 @@ JDK版本：不低于1.8
     
 4.通过@Autowired注入hbaseTemplate和areaRowMapper，即可使用hbaseTemplate进行Hbase相关API操作。
 
-        @Autowired
-        private HbaseTemplate hbaseTemplate;
-    
-        @Autowired
-        private AreaRowMapper areaRowMapper;
+    @Autowired
+    private HbaseTemplate hbaseTemplate;
+
+    @Autowired
+    private AreaRowMapper areaRowMapper;
         
 5.代码示例
 
@@ -40,6 +45,7 @@ JDK版本：不低于1.8
      List<Area> list = this.hbaseTemplate.list("area", scan, areaRowMapper);
      
 ###配置文件说明
+
     hbase:
      enable: true
      root-dir: hdfs://ip:port/hbase
@@ -49,7 +55,9 @@ JDK版本：不低于1.8
       min-idle: 1
       max-idle: 10
       max-total: 100
+      
 ###特性
+
 1.开箱即用，配置简单
 
 2.支持将行数据封装为java对象，易于操作
