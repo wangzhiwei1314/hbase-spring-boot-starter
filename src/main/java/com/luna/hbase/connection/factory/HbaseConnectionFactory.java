@@ -1,4 +1,4 @@
-package com.luna.hbase.pool.factory;
+package com.luna.hbase.connection.factory;
 
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Allen Wong
  * @version V1.0.0
- * @description todo
+ * @description Hbase连接工厂
  * @date 2022/3/26 20:48
  */
 public class HbaseConnectionFactory extends BasePooledObjectFactory<Connection> {

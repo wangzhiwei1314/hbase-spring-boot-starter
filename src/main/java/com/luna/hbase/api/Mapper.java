@@ -1,4 +1,4 @@
-package com.luna.hbase.definition;
+package com.luna.hbase.api;
 
 import org.apache.hadoop.hbase.client.Result;
 
