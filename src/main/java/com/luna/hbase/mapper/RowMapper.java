@@ -45,7 +45,7 @@ public class RowMapper<T> implements Mapper<T> {
             for (Field field : fields) {
                 Class<?> type = field.getType();
                 if (String.class != type) {
-                    throw new HbaseException("The filed present with @HbaseColumn must be String type!");
+                    throw new HbaseException("The field present with @HbaseColumn must be String type!");
                 }
 
                 ReflectionUtils.makeAccessible(field);

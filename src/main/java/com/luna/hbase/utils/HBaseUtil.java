@@ -14,35 +14,34 @@ import java.util.Random;
  */
 public class HBaseUtil {
 
-    //生成随机数字和字母,
+    /**
+     * 生成随机字母或数字
+     *
+     * @param length
+     * @return
+     */
     public static String randomString(int length) {
-
-        StringBuilder val = new StringBuilder();
+        StringBuilder string = new StringBuilder();
         Random random = new Random();
-
-        //参数length，表示生成几位随机数
         for (int i = 0; i < length; i++) {
-
             String charOrNum = random.nextInt(2) % 2 == 0 ? "char" : "num";
-            //输出字母还是数字
             if ("char".equalsIgnoreCase(charOrNum)) {
-                //输出是大写字母还是小写字母
                 int temp = random.nextInt(2) % 2 == 0 ? 65 : 97;
-                val.append((char) (random.nextInt(26) + temp));
+                string.append((char) (random.nextInt(26) + temp));
             } else {
-                val.append(random.nextInt(10));
+                string.append(random.nextInt(10));
             }
         }
-        return val.toString();
+        return string.toString();
     }
 
     /**
      * 生成2位随机字符串 + 13位时间戳 + 业务编码的rowKey.
      *
-     * @param bizCode
+     * @param bizCode 业务代码
      * @return
      */
-    public static String rawRowKey(String bizCode) {
+    public static String generateRowKey(String bizCode) {
         return randomString(2) + System.currentTimeMillis() + bizCode;
     }
 
@@ -62,7 +61,11 @@ public class HBaseUtil {
         return Bytes.toString(CellUtil.cloneValue(cell));
     }
 
-
+    /**
+     * 将字符串首字母大写
+     * @param word
+     * @return
+     */
     public static String upperCaseFirstLetter(String word) {
         return word.substring(0, 1).toUpperCase() + word.substring(1);
     }

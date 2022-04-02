@@ -56,7 +56,7 @@ public class HbaseTemplate implements HbaseOperations {
     }
 
     @Override
-    public List<String> listTable() {
+    public List<String> listTableName() {
         return this.execute(connection -> {
             Admin admin = connection.getAdmin();
             TableName[] tableNames = admin.listTableNames();

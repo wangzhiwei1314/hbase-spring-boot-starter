@@ -19,8 +19,6 @@ import java.util.Objects;
  */
 public class HbaseConnectionFactory extends BasePooledObjectFactory<Connection> {
 
-    private final static Logger log = LoggerFactory.getLogger(HbaseConnectionFactory.class);
-
     private final Configuration configuration;
 
     public HbaseConnectionFactory(Configuration configuration) {

@@ -9,6 +9,7 @@ import java.io.Serializable;
  * @date 2022/3/26 21:59
  */
 public class HbaseCell implements Serializable {
+
     private static final long serialVersionUID = -1458436889946478194L;
 
     private String rowKey;

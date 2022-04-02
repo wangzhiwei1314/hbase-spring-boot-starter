@@ -34,7 +34,7 @@ public interface HbaseOperations {
      * 遍历所有表名
      * @return
      */
-    List<String> listTable();
+    List<String> listTableName();
 
     /**
      * 保存一行数据
