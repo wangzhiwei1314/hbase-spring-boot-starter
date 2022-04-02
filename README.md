@@ -18,7 +18,7 @@ JDK版本：不低于1.8
         <version>1.0.0.RELEASE</version>
     </dependency>
     
-2.编写java对象，注意属性必须是String类型，属性上增加@HbaseColumn注解，如
+2.创建java映射对象，注意属性必须是String类型，属性保持和Hbase中的column一致，或在属性上增加@HbaseColumn注解，如
 
     @HbaseColumn("AREA_NAME_")
     private String areaName;

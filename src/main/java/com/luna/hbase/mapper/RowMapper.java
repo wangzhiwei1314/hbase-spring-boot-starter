@@ -49,7 +49,9 @@ public class RowMapper<T> implements Mapper<T> {
                 }
 
                 ReflectionUtils.makeAccessible(field);
-                if (field.isAnnotationPresent(HbaseColumn.class)) {
+                if (field.getName().equalsIgnoreCase(columnQualifier)) {
+                    ReflectionUtils.setField(field, entity, value);
+                } else if (field.isAnnotationPresent(HbaseColumn.class)) {
                     String hbaseColumn = field.getAnnotation(HbaseColumn.class).value();
                     if (columnQualifier.equals(hbaseColumn)) {
                         ReflectionUtils.setField(field, entity, value);
