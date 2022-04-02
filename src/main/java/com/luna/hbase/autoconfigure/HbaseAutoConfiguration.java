@@ -39,9 +39,9 @@ public class HbaseAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public GenericObjectPool<Connection> connectionPool(HbaseProperties hbaseProperties) {
-        GenericObjectPoolConfig<Connection> poolConfig = hbaseProperties.getPoolConfig();
+    public org.apache.hadoop.conf.Configuration configuration(HbaseProperties hbaseProperties) {
         org.apache.hadoop.conf.Configuration configuration = HBaseConfiguration.create();
+
         String rootDir = hbaseProperties.getRootDir();
         Assert.hasText(rootDir, "Root dir of HBase could not be null!");
         configuration.set(HBASE_ROOT_DIR, rootDir);
@@ -50,20 +50,23 @@ public class HbaseAutoConfiguration {
         if (StringUtils.isNoneBlank(quorum)) {
             configuration.set(HBASE_ZOOKEEPER_QUORUM, quorum);
         }
+
         String znodeParent = hbaseProperties.getZookeeper().getZnodeParent();
         if (StringUtils.isNotBlank(znodeParent)) {
             configuration.set(ZOOKEEPER_ZNODE_PARENT, znodeParent);
         }
 
-        log.info("HBase connection pool initiating successfully! min-idle is {}, max-idle is {}, max-total is {}",
-                poolConfig.getMinIdle(), poolConfig.getMaxIdle(), poolConfig.getMaxTotal());
-        return new GenericObjectPool<>(new HbaseConnectionFactory(configuration), poolConfig);
+        return configuration;
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public HbaseTemplate hbaseTemplate(GenericObjectPool<Connection> pool) {
-        return new HbaseTemplate(pool);
+    public HbaseTemplate hbaseTemplate(HbaseProperties hbaseProperties, org.apache.hadoop.conf.Configuration configuration) {
+        GenericObjectPoolConfig<Connection> poolConfig = hbaseProperties.getPoolConfig();
+        log.info("HBase connection pool initiating successfully! min-idle is {}, max-idle is {}, max-total is {}",
+                poolConfig.getMinIdle(), poolConfig.getMaxIdle(), poolConfig.getMaxTotal());
+
+        return new HbaseTemplate(new GenericObjectPool<>(new HbaseConnectionFactory(configuration), poolConfig));
     }
 
 
