@@ -54,6 +54,17 @@
         </dependency>
     </dependencies>
 
+    <developers>
+        <developer>
+            <name>wangzhiwei</name>
+            <email>austin_wong@sina.com</email>
+            <roles>
+                <role>Project leader</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+
     <build>
         <plugins>
             <plugin>

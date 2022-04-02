@@ -57,7 +57,7 @@ public class RowMapper<T> implements Mapper<T> {
                                 ReflectionUtils.invokeMethod(setMethod, entity, value);
                             }
                         } catch (Exception e) {
-                            log.error("通过反射调用set方法发生异常", e);
+                            log.error("An exception occurred when invoke setter method via reflection", e);
                         }
                     }
                 }
