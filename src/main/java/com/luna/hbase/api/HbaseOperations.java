@@ -87,7 +87,7 @@ public interface HbaseOperations {
      * @param rowKey 行键
      * @return
      */
-    public List<HbaseCell> find(String tableName, String rowKey);
+    List<HbaseCell> find(String tableName, String rowKey);
 
     /**
      * 查询多行数据
@@ -95,5 +95,5 @@ public interface HbaseOperations {
      * @param scan 扫描条件
      * @return
      */
-    public Map<String, List<HbaseCell>> scan(String tableName, Scan scan);
+    Map<String, List<HbaseCell>> scan(String tableName, Scan scan);
 }

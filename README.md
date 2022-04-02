@@ -10,7 +10,7 @@ JDK版本：不低于1.8
 
 ###使用说明
 
-1.引入依赖
+1.clone代码，mvn clean install，引入依赖
 
     <dependency>
         <groupId>com.luna</groupId>
