@@ -46,14 +46,11 @@ public class RowMapper<T> implements Mapper<T> {
                 if (field.isAnnotationPresent(HbaseColumn.class)) {
                     HbaseColumn hbaseColumn = field.getAnnotation(HbaseColumn.class);
                     String columnName = hbaseColumn.value();
-                    // 如果和列名相等，则获取set方法进行赋值
                     if (column.equals(columnName)) {
                         String setMethodName = "set" + HBaseUtil.upperCaseFirstLetter(field.getName());
-                        // 注意set方法一定要带上参数，否则获取不到，因为不带参数默认寻找无参方法。
                         Method setMethod = ReflectionUtils.findMethod(clazz, setMethodName, field.getType());
                         try {
                             if (Objects.nonNull(setMethod)) {
-                                // 注意实体类的字段类型必须是string，否则会报arguments type mismatch，因为hbase取出来的字段类型是string
                                 ReflectionUtils.invokeMethod(setMethod, entity, value);
                             }
                         } catch (Exception e) {
