@@ -12,7 +12,7 @@ import java.util.Map;
  * @date 2022/3/30 15:55
  * @since JDK1.8
  */
-public interface HbaseOperation {
+public interface HbaseOperations {
 
     /**
      * 执行Hbase callback操作
@@ -31,7 +31,7 @@ public interface HbaseOperation {
     boolean createTable(String tableName, String... families);
 
     /**
-     * 遍历表名
+     * 遍历所有表名
      * @return
      */
     List<String> listTable();

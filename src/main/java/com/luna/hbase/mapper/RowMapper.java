@@ -2,6 +2,7 @@ package com.luna.hbase.mapper;
 
 import com.luna.hbase.annotation.HbaseColumn;
 import com.luna.hbase.api.Mapper;
+import com.luna.hbase.exception.HbaseException;
 import com.luna.hbase.utils.HBaseUtil;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
@@ -37,25 +38,21 @@ public class RowMapper<T> implements Mapper<T> {
         T entity = (T) clazz.newInstance();
         List<Cell> cells = result.listCells();
         for (Cell cell : cells) {
-            String column = HBaseUtil.column(cell);
+            String columnQualifier = HBaseUtil.column(cell);
             String value = HBaseUtil.value(cell);
             Field[] fields = clazz.getDeclaredFields();
 
             for (Field field : fields) {
+                Class<?> type = field.getType();
+                if (String.class != type) {
+                    throw new HbaseException("The filed present with @HbaseColumn must be String type!");
+                }
+
                 ReflectionUtils.makeAccessible(field);
                 if (field.isAnnotationPresent(HbaseColumn.class)) {
-                    HbaseColumn hbaseColumn = field.getAnnotation(HbaseColumn.class);
-                    String columnName = hbaseColumn.value();
-                    if (column.equals(columnName)) {
-                        String setMethodName = "set" + HBaseUtil.upperCaseFirstLetter(field.getName());
-                        Method setMethod = ReflectionUtils.findMethod(clazz, setMethodName, field.getType());
-                        try {
-                            if (Objects.nonNull(setMethod)) {
-                                ReflectionUtils.invokeMethod(setMethod, entity, value);
-                            }
-                        } catch (Exception e) {
-                            log.error("An exception occurred when invoke setter method via reflection", e);
-                        }
+                    String hbaseColumn = field.getAnnotation(HbaseColumn.class).value();
+                    if (columnQualifier.equals(hbaseColumn)) {
+                        ReflectionUtils.setField(field, entity, value);
                     }
                 }
 

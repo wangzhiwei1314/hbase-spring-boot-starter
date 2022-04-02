@@ -1,7 +1,7 @@
 package com.luna.hbase.utils;
 
 import com.luna.hbase.api.HbaseCallback;
-import com.luna.hbase.api.HbaseOperation;
+import com.luna.hbase.api.HbaseOperations;
 import com.luna.hbase.api.Mapper;
 import com.luna.hbase.entity.HbaseCell;
 import com.luna.hbase.exception.HbaseException;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * @date 2022/3/30 15:52
  * @since JDK1.8
  */
-public class HbaseTemplate implements HbaseOperation {
+public class HbaseTemplate implements HbaseOperations {
 
     private final static Logger log = LoggerFactory.getLogger(HbaseTemplate.class);
 
@@ -49,7 +49,7 @@ public class HbaseTemplate implements HbaseOperation {
                     .collect(Collectors.toList());
             TableDescriptor tableDescriptor = TableDescriptorBuilder.newBuilder(name).setColumnFamilies(list).build();
             admin.createTable(tableDescriptor);
-            log.warn("create table successfully!");
+            log.info("create table {} successfully!", tableName);
             return false;
 
         });
@@ -64,37 +64,30 @@ public class HbaseTemplate implements HbaseOperation {
         });
     }
 
-    /**
-     * 查询表中所有数据
-     *
-     * @param tableName
-     * @return
-     */
     @Override
     @Deprecated
     public Map<String, List<HbaseCell>> scan(String tableName, Scan scan) {
         return this.execute(connection -> {
             Map<String, List<HbaseCell>> result;
             result = new HashMap<>(16);
+
             try (Table table = connection.getTable(TableName.valueOf(tableName))){
                 ResultScanner scanner = table.getScanner(scan);
-
                 for (Result i : scanner) {
                     String rowKey = null;
                     List<HbaseCell> row = new ArrayList<>();
                     for (Cell cell : i.listCells()) {
-                        // rowKey
                         if (Objects.isNull(rowKey)) {
                             rowKey = HBaseUtil.rowKey(cell);
                         }
-                        HbaseCell hBaseCell = new HbaseCell(rowKey, HBaseUtil.family(cell), HBaseUtil.column(cell), HBaseUtil.value(cell));
-                        row.add(hBaseCell);
+                        row.add(new HbaseCell(rowKey, HBaseUtil.family(cell), HBaseUtil.column(cell), HBaseUtil.value(cell)));
                     }
                     result.put(rowKey, row);
                 }
             } catch (IOException e) {
                 log.error("An exception occurred while scanning table", e);
             }
+
             return result;
         });
     }
@@ -108,7 +101,6 @@ public class HbaseTemplate implements HbaseOperation {
                 for (Result result : resultScanners) {
                     list.add(mapper.mapping(result));
                 }
-
             } catch (IOException e) {
                 log.error("An exception occurred when list table", e);
             }
@@ -116,16 +108,6 @@ public class HbaseTemplate implements HbaseOperation {
         });
     }
 
-    /**
-     * 保存数据
-     *
-     * @param tableName
-     * @param rowKey
-     * @param columnFamily
-     * @param columnQualifiers
-     * @param values
-     * @throws IOException
-     */
     @Override
     public void put(String tableName, String rowKey, String columnFamily, String[] columnQualifiers, String[] values) {
         this.execute(connection -> {
@@ -143,13 +125,6 @@ public class HbaseTemplate implements HbaseOperation {
         });
     }
 
-    /**
-     * 删除行
-     *
-     * @param tableName
-     * @param rowKey
-     * @throws IOException
-     */
     @Override
     public void delete(String tableName, String rowKey) {
         this.execute(connection -> {
@@ -159,7 +134,6 @@ public class HbaseTemplate implements HbaseOperation {
             } catch (IOException e) {
                 log.error("An exception occurred when delete row", e);
             }
-
             return null;
         });
     }
@@ -176,14 +150,11 @@ public class HbaseTemplate implements HbaseOperation {
                     String family = Bytes.toString(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength());
                     String column = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                     String value = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-                    log.info("family:{},column:{},value:{}", family, column, value);
-                    HbaseCell baseCell = new HbaseCell(rowKey, family, column, value);
-                    list.add(baseCell);
+                    list.add(new HbaseCell(rowKey, family, column, value));
                 }
             } catch (IOException e) {
                 log.error("An exception occurred when find row", e);
             }
-
             return list;
         });
     }
@@ -198,7 +169,6 @@ public class HbaseTemplate implements HbaseOperation {
             } catch (IOException e) {
                 log.error("An exception occurred when get row", e);
             }
-
             return null;
         });
     }
