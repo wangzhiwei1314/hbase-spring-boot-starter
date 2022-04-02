@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class HbaseTemplate implements HbaseOperation {
 
-    private final Logger log = LoggerFactory.getLogger(HbaseTemplate.class);
+    private final static Logger log = LoggerFactory.getLogger(HbaseTemplate.class);
 
     protected GenericObjectPool<Connection> pool;
 

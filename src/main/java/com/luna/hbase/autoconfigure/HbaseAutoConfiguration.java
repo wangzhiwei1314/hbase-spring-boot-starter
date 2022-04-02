@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 @ConditionalOnProperty(name = "spring.hbase.enable", havingValue = "true")
 public class HbaseAutoConfiguration {
 
-    private final Logger log = LoggerFactory.getLogger(HbaseConnectionFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(HbaseConnectionFactory.class);
 
     private static final String HBASE_ROOT_DIR = "hbase.rootdir";
 
@@ -55,7 +55,7 @@ public class HbaseAutoConfiguration {
             configuration.set(ZOOKEEPER_ZNODE_PARENT, znodeParent);
         }
 
-        log.info("HBase connection pool initialize successfully! min-idle is {}, max-idle is {}, max-total is {}",
+        log.info("HBase connection pool initiating successfully! min-idle is {}, max-idle is {}, max-total is {}",
                 poolConfig.getMinIdle(), poolConfig.getMaxIdle(), poolConfig.getMaxTotal());
         return new GenericObjectPool<>(new HbaseConnectionFactory(configuration), poolConfig);
     }
