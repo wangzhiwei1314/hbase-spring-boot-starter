@@ -1,67 +1,104 @@
-##hbase-spring-boot-starter说明
+# hbase-spring-boot-starter
 
-由于spring-boot组件缺乏对Hbase的支持，因此封装该starter，提高java语言使用hbase的效率
+## 简介
 
-###使用要求
+由于 spring-boot 组件缺乏对 Hbase 的支持，因此封装该 starter，提高 java 语言使用 hbase 的效率。欢迎朋友们使用并加星，如果有问题请及时联系我，邮箱：austin_wong@sina.com
 
-spring-boot版本：不低于2.1.0.RELEASE
+## 使用要求
 
-JDK版本：不低于1.8
+spring-boot 版本：不低于 2.1.0.RELEASE
 
-###使用说明
+JDK 版本：不低于 1.8
 
-1.clone代码，mvn clean install，引入依赖
+## 使用说明
 
+### 1.clone代码,git clone https://github.com/wangzhiwei1314/hbase-spring-boot-starter.git，然后mvn clean install并引入依赖
+
+```xml
     <dependency>
         <groupId>com.luna</groupId>
         <artifactId>hbase-spring-boot-starter</artifactId>
         <version>1.0.0.RELEASE</version>
     </dependency>
-    
-2.创建java映射对象，注意属性必须是String类型，属性保持和Hbase中的column一致，或在属性上增加@HbaseColumn注解，如
+```
 
-    @HbaseColumn("AREA_NAME_")
-    private String areaName;
+### 2.创建 java 映射对象，注意属性必须是 String 类型，属性保持和 Hbase 中的 column 一致，或在属性上增加@HbaseColumn 注解，如
 
-3.编写Mapper类，继承RowMapper<T>类，增加@Repository注解，如
+```java
+public class Area {
 
-    @Repository
-    public class AreaRowMapper extends RowMapper<Area> {
+  @HbaseColumn("AREA_NAME_")
+  private String areaName;
+}
 
-    }
-    
-4.通过@Autowired注入hbaseTemplate和areaRowMapper，即可使用hbaseTemplate进行Hbase相关API操作。
+```
 
-    @Autowired
-    private HbaseTemplate hbaseTemplate;
+### 3.编写 Mapper 类，继承 RowMapper<T>类，增加@Repository 注解，如
 
-    @Autowired
-    private AreaRowMapper areaRowMapper;
-        
-5.代码示例
+```java
+@Repository
+public class AreaRowMapper extends RowMapper<Area> {}
 
-     Scan scan = new Scan();
-     scan.setFilter(new PageFilter(10));
-     List<Area> list = this.hbaseTemplate.list("area", scan, areaRowMapper);
-     
-###配置文件说明
+```
 
+### 4.通过@Autowired 注入 hbaseTemplate 和 areaRowMapper，即可使用 hbaseTemplate 进行 Hbase 相关 API 操作。
+
+```java
+public class HBaseService {
+
+  @Autowired
+  private HbaseTemplate hbaseTemplate;
+
+  @Autowired
+  private AreaRowMapper areaRowMapper;
+}
+
+```
+
+### 5.代码示例
+
+```java
+public class HBaseController {
+
+  @Autowired
+  private HbaseTemplate hbaseTemplate;
+
+  @Autowired
+  private AreaRowMapper areaRowMapper;
+
+  public List<Area> list() {
+    Scan scan = new Scan();
+    scan.setFilter(new PageFilter(10));
+    List<Area> list = this.hbaseTemplate.list("area", scan, areaRowMapper);
+  }
+}
+
+```
+
+## 配置文件说明
+
+```yaml
     hbase:
+	#true启用，false禁用
      enable: true
+	 #Hbase根目录
      root-dir: hdfs://ip:port/hbase
      zookeeper:
+	 #zookeeper地址
       quorum: ip:port
+	 #连接池配置
      pool-config:
       min-idle: 1
       max-idle: 10
       max-total: 100
-      
-###特性
+```
 
-1.开箱即用，配置简单
+### 特性
 
-2.支持将行数据封装为java对象，易于操作
+* 开箱即用，配置简单
 
-3.支持连接池管理，提升对Hbase操作效率
+* 支持将 Hbase 行数据结果自动封装为 java 对象，易于操作
 
-4.丰富的API，可以满足大部分对于Hbase的操作需求
+* 支持连接池管理，提升 Hbase 操作效率
+
+* 丰富的 API，可以满足大部分对于 Hbase 的操作需求
