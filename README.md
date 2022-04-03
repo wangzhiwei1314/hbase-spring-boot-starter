@@ -12,14 +12,15 @@ JDK 版本：不低于 1.8
 
 ## 使用说明
 
-### 1.clone代码,git clone https://github.com/wangzhiwei1314/hbase-spring-boot-starter.git，然后mvn clean install并引入依赖
+### 1.引入maven依赖，本依赖已上传至公网，可直接引用
 
 ```xml
     <dependency>
-        <groupId>com.luna</groupId>
+        <groupId>io.github.wangzhiwei1314</groupId>
         <artifactId>hbase-spring-boot-starter</artifactId>
         <version>1.0.0.RELEASE</version>
     </dependency>
+
 ```
 
 ### 2.创建 java 映射对象，注意属性必须是 String 类型，属性保持和 Hbase 中的 column 一致，或在属性上增加@HbaseColumn 注解，如
