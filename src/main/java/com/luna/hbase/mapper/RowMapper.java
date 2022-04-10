@@ -25,8 +25,6 @@ import java.util.Objects;
  */
 public class RowMapper<T> implements Mapper<T> {
 
-    private final static Logger log = LoggerFactory.getLogger(RowMapper.class);
-
     @Override
     @SuppressWarnings("unchecked")
     public T mapping(Result result) throws Exception {

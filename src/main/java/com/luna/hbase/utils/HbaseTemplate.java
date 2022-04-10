@@ -143,7 +143,7 @@ public class HbaseTemplate implements HbaseOperations {
     public List<HbaseCell> find(String tableName, String rowKey) {
         return this.execute(connection -> {
             List<HbaseCell> list = new ArrayList<>();
-            try (Table table = connection.getTable(TableName.valueOf(tableName));){
+            try (Table table = connection.getTable(TableName.valueOf(tableName))){
                 Get get = new Get(rowKey.getBytes());
                 Result result = table.get(get);
                 for (Cell cell : result.rawCells()) {
@@ -176,7 +176,7 @@ public class HbaseTemplate implements HbaseOperations {
     @Override
     public String get(String tableName, String rowKey, String family, String column) {
         return this.execute(connection -> {
-            try (Table table = connection.getTable(TableName.valueOf(tableName));){
+            try (Table table = connection.getTable(TableName.valueOf(tableName))){
                 Get get = new Get(rowKey.getBytes());
                 get.addColumn(family.getBytes(), column.getBytes());
                 Result result = table.get(get);

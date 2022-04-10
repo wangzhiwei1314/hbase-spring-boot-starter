@@ -2,13 +2,13 @@
 
 ## 简介
 
-由于 spring-boot 组件缺乏对 Hbase 的支持，因此封装该 starter，提高 java 语言使用 hbase 的效率。欢迎朋友们使用并加星，如果有问题请及时联系我，邮箱：austin_wong@sina.com
+由于spring-boot组件缺乏对Hbase的支持，因此封装该starter，提高java语言使用hbase的效率。欢迎朋友们使用并加星，如果有问题请及时联系我，邮箱：austin_wong@sina.com
 
 ## 使用要求
 
-spring-boot 版本：不低于 2.1.0.RELEASE
+spring-boot版本：不低于2.1.0.RELEASE
 
-JDK 版本：不低于 1.8
+JDK版本：不低于 1.8
 
 ## 使用说明
 
@@ -18,23 +18,24 @@ JDK 版本：不低于 1.8
     <dependency>
         <groupId>io.github.wangzhiwei1314</groupId>
         <artifactId>hbase-spring-boot-starter</artifactId>
-        <version>1.0.0.RELEASE</version>
+        <version>1.0.1.RELEASE</version>
     </dependency>
 
 ```
 
-### 2.创建 java 映射对象，注意属性必须是 String 类型，属性保持和 Hbase 中的 column 一致，或在属性上增加@HbaseColumn 注解，如
+### 2.创建java映射对象，注意属性必须是String类型，属性保持和Hbase中的column一致，或在属性上增加@HbaseColumn注解，如
 
 ```java
 public class Area {
 
   @HbaseColumn("AREA_NAME_")
   private String areaName;
+
 }
 
 ```
 
-### 3.编写 Mapper 类，继承 RowMapper<T>类，增加@Repository 注解，如
+### 3.编写Mapper类，继承RowMapper<T>类，增加@Repository注解，如
 
 ```java
 @Repository
@@ -42,7 +43,7 @@ public class AreaRowMapper extends RowMapper<Area> {}
 
 ```
 
-### 4.通过@Autowired 注入 hbaseTemplate 和 areaRowMapper，即可使用 hbaseTemplate 进行 Hbase 相关 API 操作。
+### 4.通过@Autowired注入hbaseTemplate和areaRowMapper，即可使用hbaseTemplate进行Hbase相关API操作。
 
 ```java
 public class HBaseService {
@@ -52,6 +53,7 @@ public class HBaseService {
 
   @Autowired
   private AreaRowMapper areaRowMapper;
+
 }
 
 ```
@@ -72,6 +74,7 @@ public class HBaseController {
     scan.setFilter(new PageFilter(10));
     List<Area> list = this.hbaseTemplate.list("area", scan, areaRowMapper);
   }
+
 }
 
 ```
@@ -98,8 +101,8 @@ public class HBaseController {
 
 * 开箱即用，配置简单
 
-* 支持将 Hbase 行数据结果自动封装为 java 对象，易于操作
+* 支持将Hbase行数据结果自动封装为java对象，易于操作
 
-* 支持连接池管理，提升 Hbase 操作效率
+* 支持连接池管理，提升Hbase操作效率
 
-* 丰富的 API，可以满足大部分对于 Hbase 的操作需求
+* 丰富的API，可以满足大部分Hbase使用場景

@@ -4,9 +4,8 @@ import com.luna.hbase.connection.factory.HbaseConnectionFactory;
 import com.luna.hbase.utils.HbaseTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.TableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -16,6 +15,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Austin Wong
@@ -61,13 +65,24 @@ public class HbaseAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public HbaseTemplate hbaseTemplate(HbaseProperties hbaseProperties, org.apache.hadoop.conf.Configuration configuration) {
-        GenericObjectPoolConfig<Connection> poolConfig = hbaseProperties.getPoolConfig();
-        log.info("HBase connection pool initiating successfully! min-idle is {}, max-idle is {}, max-total is {}",
-                poolConfig.getMinIdle(), poolConfig.getMaxIdle(), poolConfig.getMaxTotal());
-
-        return new HbaseTemplate(new GenericObjectPool<>(new HbaseConnectionFactory(configuration), poolConfig));
+    public HbaseProperties.HbasePoolConfiguration hbasePoolConfiguration(HbaseProperties hbaseProperties) {
+        return hbaseProperties.getPoolConfig();
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public HbaseTemplate hbaseTemplate(HbaseProperties.HbasePoolConfiguration hbasePoolConfiguration, org.apache.hadoop.conf.Configuration configuration) {
+        log.info("HBase connection pool initiating successfully!");
+        log.info("{}", hbasePoolConfiguration.toString());
+        HbaseTemplate hbaseTemplate = new HbaseTemplate(new GenericObjectPool<>(new HbaseConnectionFactory(configuration), hbasePoolConfiguration));
+
+        // Preheating zookeeper connection.
+        new Thread(() -> {
+            List<String> tableNameList = hbaseTemplate.listTableName();
+            log.info("Current tables in Hbase are [{}]", String.join(",", tableNameList));
+        }).start();
+
+        return hbaseTemplate;
+    }
 
 }

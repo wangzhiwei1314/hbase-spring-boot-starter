@@ -8,7 +8,7 @@ import static com.luna.hbase.autoconfigure.HbaseProperties.HBASE_PREFIX;
 
 /**
  * @author Austin Wong
- * @description Hbase.properties
+ * @description Hbase properties.
  * @date 2022/4/1 15:54
  * @since JDK1.8
  */
@@ -23,13 +23,13 @@ public class HbaseProperties {
 
     private String rootDir;
 
-    GenericObjectPoolConfig<Connection> poolConfig = new GenericObjectPoolConfig<>();
+    HbasePoolConfiguration poolConfig = new HbasePoolConfiguration();
 
-    public GenericObjectPoolConfig<Connection> getPoolConfig() {
+    public HbasePoolConfiguration getPoolConfig() {
         return poolConfig;
     }
 
-    public void setPoolConfig(GenericObjectPoolConfig<Connection> poolConfig) {
+    public void setPoolConfig(HbasePoolConfiguration poolConfig) {
         this.poolConfig = poolConfig;
     }
 
@@ -80,5 +80,181 @@ public class HbaseProperties {
         }
     }
 
+    public static class HbasePoolConfiguration extends GenericObjectPoolConfig<Connection> {
 
+        private int maxTotal = DEFAULT_MAX_TOTAL;
+
+        private int maxIdle = DEFAULT_MAX_IDLE;
+
+        private int minIdle = DEFAULT_MIN_IDLE;
+
+        private boolean lifo = DEFAULT_LIFO;
+
+        private boolean fairness = DEFAULT_FAIRNESS;
+
+        private long maxWaitMillis = DEFAULT_MAX_WAIT_MILLIS;
+
+        private boolean testOnCreate = DEFAULT_TEST_ON_CREATE;
+
+        private boolean testOnBorrow = DEFAULT_TEST_ON_BORROW;
+
+        private boolean testOnReturn = DEFAULT_TEST_ON_RETURN;
+
+        private boolean testWhileIdle = DEFAULT_TEST_WHILE_IDLE;
+
+        private long timeBetweenEvictionRunsMillis =
+                DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS;
+
+        private boolean blockWhenExhausted = DEFAULT_BLOCK_WHEN_EXHAUSTED;
+
+        private boolean jmxEnabled = DEFAULT_JMX_ENABLE;
+
+        private String jmxNamePrefix = DEFAULT_JMX_NAME_PREFIX;
+
+        private String jmxNameBase = DEFAULT_JMX_NAME_BASE;
+
+        @Override
+        public int getMaxTotal() {
+            return maxTotal;
+        }
+
+        @Override
+        public void setMaxTotal(int maxTotal) {
+            this.maxTotal = maxTotal;
+        }
+
+        @Override
+        public int getMaxIdle() {
+            return maxIdle;
+        }
+
+        @Override
+        public void setMaxIdle(int maxIdle) {
+            this.maxIdle = maxIdle;
+        }
+
+        @Override
+        public int getMinIdle() {
+            return minIdle;
+        }
+
+        @Override
+        public void setMinIdle(int minIdle) {
+            this.minIdle = minIdle;
+        }
+
+        public boolean isLifo() {
+            return lifo;
+        }
+
+        @Override
+        public void setLifo(boolean lifo) {
+            this.lifo = lifo;
+        }
+
+        public boolean isFairness() {
+            return fairness;
+        }
+
+        @Override
+        public void setFairness(boolean fairness) {
+            this.fairness = fairness;
+        }
+
+        @Override
+        public long getMaxWaitMillis() {
+            return maxWaitMillis;
+        }
+
+        @Override
+        public void setMaxWaitMillis(long maxWaitMillis) {
+            this.maxWaitMillis = maxWaitMillis;
+        }
+
+        public boolean isTestOnCreate() {
+            return testOnCreate;
+        }
+
+        @Override
+        public void setTestOnCreate(boolean testOnCreate) {
+            this.testOnCreate = testOnCreate;
+        }
+
+        public boolean isTestOnBorrow() {
+            return testOnBorrow;
+        }
+
+        @Override
+        public void setTestOnBorrow(boolean testOnBorrow) {
+            this.testOnBorrow = testOnBorrow;
+        }
+
+        public boolean isTestOnReturn() {
+            return testOnReturn;
+        }
+
+        @Override
+        public void setTestOnReturn(boolean testOnReturn) {
+            this.testOnReturn = testOnReturn;
+        }
+
+        public boolean isTestWhileIdle() {
+            return testWhileIdle;
+        }
+
+        @Override
+        public void setTestWhileIdle(boolean testWhileIdle) {
+            this.testWhileIdle = testWhileIdle;
+        }
+
+        @Override
+        public long getTimeBetweenEvictionRunsMillis() {
+            return timeBetweenEvictionRunsMillis;
+        }
+
+        @Override
+        public void setTimeBetweenEvictionRunsMillis(long timeBetweenEvictionRunsMillis) {
+            this.timeBetweenEvictionRunsMillis = timeBetweenEvictionRunsMillis;
+        }
+
+        public boolean isBlockWhenExhausted() {
+            return blockWhenExhausted;
+        }
+
+        @Override
+        public void setBlockWhenExhausted(boolean blockWhenExhausted) {
+            this.blockWhenExhausted = blockWhenExhausted;
+        }
+
+        public boolean isJmxEnabled() {
+            return jmxEnabled;
+        }
+
+        @Override
+        public void setJmxEnabled(boolean jmxEnabled) {
+            this.jmxEnabled = jmxEnabled;
+        }
+
+        @Override
+        public String getJmxNamePrefix() {
+            return jmxNamePrefix;
+        }
+
+        @Override
+        public void setJmxNamePrefix(String jmxNamePrefix) {
+            this.jmxNamePrefix = jmxNamePrefix;
+        }
+
+        @Override
+        public String getJmxNameBase() {
+            return jmxNameBase;
+        }
+
+        @Override
+        public void setJmxNameBase(String jmxNameBase) {
+            this.jmxNameBase = jmxNameBase;
+        }
+
+
+    }
 }
