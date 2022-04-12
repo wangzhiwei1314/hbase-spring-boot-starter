@@ -8,8 +8,8 @@ import java.util.Random;
 
 /**
  * @author Austin Wong
- * @description Hbase 工具类
- * @date 2022/3/30 14:28
+ * Hbase 工具类
+ * 2022/3/30 14:28
  * @since JDK1.8
  */
 public class HBaseUtil {
@@ -17,8 +17,8 @@ public class HBaseUtil {
     /**
      * 生成随机字母或数字
      *
-     * @param length
-     * @return
+     * @param length 长度
+     * @return String
      */
     public static String randomString(int length) {
         StringBuilder string = new StringBuilder();
@@ -39,7 +39,7 @@ public class HBaseUtil {
      * 生成2位随机字符串 + 13位时间戳 + 业务编码的rowKey.
      *
      * @param bizCode 业务代码
-     * @return
+     * @return String
      */
     public static String generateRowKey(String bizCode) {
         return randomString(2) + System.currentTimeMillis() + bizCode;
@@ -63,8 +63,8 @@ public class HBaseUtil {
 
     /**
      * 将字符串首字母大写
-     * @param word
-     * @return
+     * @param word 输入的字符串
+     * @return String
      */
     public static String upperCaseFirstLetter(String word) {
         return word.substring(0, 1).toUpperCase() + word.substring(1);

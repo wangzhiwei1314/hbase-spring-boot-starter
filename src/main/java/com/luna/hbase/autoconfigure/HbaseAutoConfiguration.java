@@ -1,6 +1,7 @@
 package com.luna.hbase.autoconfigure;
 
 import com.luna.hbase.connection.factory.HbaseConnectionFactory;
+import com.luna.hbase.connection.pool.HbaseConnectionPool;
 import com.luna.hbase.utils.HbaseTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPool;
@@ -23,8 +24,8 @@ import java.util.stream.Collectors;
 
 /**
  * @author Austin Wong
- * @description Hbase自动配置类
- * @date 2022/4/1 16:01
+ * Hbase自动配置类
+ * 2022/4/1 16:01
  * @since JDK1.8
  */
 @Configuration
@@ -35,12 +36,6 @@ public class HbaseAutoConfiguration {
 
     private final static Logger log = LoggerFactory.getLogger(HbaseConnectionFactory.class);
 
-    private static final String HBASE_ROOT_DIR = "hbase.rootdir";
-
-    private static final String HBASE_ZOOKEEPER_QUORUM = "hbase.zookeeper.quorum";
-
-    private static final String ZOOKEEPER_ZNODE_PARENT = "zookeeper.znode.parent";
-
     @Bean
     @ConditionalOnMissingBean
     public org.apache.hadoop.conf.Configuration configuration(HbaseProperties hbaseProperties) {
@@ -48,16 +43,16 @@ public class HbaseAutoConfiguration {
 
         String rootDir = hbaseProperties.getRootDir();
         Assert.hasText(rootDir, "Root dir of HBase could not be null!");
-        configuration.set(HBASE_ROOT_DIR, rootDir);
+        configuration.set("hbase.rootdir", rootDir);
 
         String quorum = hbaseProperties.getZookeeper().getQuorum();
         if (StringUtils.isNoneBlank(quorum)) {
-            configuration.set(HBASE_ZOOKEEPER_QUORUM, quorum);
+            configuration.set("hbase.zookeeper.quorum", quorum);
         }
 
         String znodeParent = hbaseProperties.getZookeeper().getZnodeParent();
         if (StringUtils.isNotBlank(znodeParent)) {
-            configuration.set(ZOOKEEPER_ZNODE_PARENT, znodeParent);
+            configuration.set("zookeeper.znode.parent", znodeParent);
         }
 
         return configuration;
@@ -65,16 +60,18 @@ public class HbaseAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public HbaseProperties.HbasePoolConfiguration hbasePoolConfiguration(HbaseProperties hbaseProperties) {
-        return hbaseProperties.getPoolConfig();
+    public HbaseConnectionPool hbaseConnectionPool(HbaseProperties hbaseProperties, org.apache.hadoop.conf.Configuration hbaseConfiguration) {
+        HbaseProperties.HbasePoolConfiguration hbasePoolConfiguration = hbaseProperties.getPoolConfig();
+        log.info("HBase connection pool initiating successfully!");
+        log.info("{}", hbasePoolConfiguration.toString());
+
+        return new HbaseConnectionPool(new HbaseConnectionFactory(hbaseConfiguration), hbasePoolConfiguration);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public HbaseTemplate hbaseTemplate(HbaseProperties.HbasePoolConfiguration hbasePoolConfiguration, org.apache.hadoop.conf.Configuration configuration) {
-        log.info("HBase connection pool initiating successfully!");
-        log.info("{}", hbasePoolConfiguration.toString());
-        HbaseTemplate hbaseTemplate = new HbaseTemplate(new GenericObjectPool<>(new HbaseConnectionFactory(configuration), hbasePoolConfiguration));
+    public HbaseTemplate hbaseTemplate(HbaseConnectionPool hbaseConnectionPool) {
+        HbaseTemplate hbaseTemplate = new HbaseTemplate(hbaseConnectionPool);
 
         // Preheating zookeeper connection.
         new Thread(() -> {

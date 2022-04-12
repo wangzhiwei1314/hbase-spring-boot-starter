@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 
 /**
  * @author Austin Wong
- * @description HBase Template
- * @date 2022/3/30 15:52
+ * HBase Template
+ * 2022/3/30 15:52
  * @since JDK1.8
  */
 public class HbaseTemplate implements HbaseOperations {

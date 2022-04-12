@@ -8,7 +8,7 @@
 
 spring-boot版本：不低于2.1.0.RELEASE
 
-JDK版本：不低于 1.8
+JDK版本：不低于1.8
 
 ## 使用说明
 
@@ -83,14 +83,14 @@ public class HBaseController {
 
 ```yaml
     hbase:
-	#true启用，false禁用
+#true启用，false禁用
      enable: true
-	 #Hbase根目录
+#Hbase根目录
      root-dir: hdfs://ip:port/hbase
      zookeeper:
-	 #zookeeper地址
+#zookeeper地址
       quorum: ip:port
-	 #连接池配置
+#连接池配置
      pool-config:
       min-idle: 1
       max-idle: 10

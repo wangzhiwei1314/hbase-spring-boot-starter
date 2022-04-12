@@ -20,8 +20,8 @@ import java.util.Objects;
 /**
  * @author Allen Wong
  * @version V1.0.0
- * @description Hbase结果映射实现类
- * @date 2022/3/31 21:44
+ * Hbase结果映射实现类
+ * 2022/3/31 21:44
  */
 public class RowMapper<T> implements Mapper<T> {
 

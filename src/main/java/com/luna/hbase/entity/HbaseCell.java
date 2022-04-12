@@ -3,10 +3,10 @@ package com.luna.hbase.entity;
 import java.io.Serializable;
 
 /**
+ * HBase cell实体类
  * @author Allen Wong
- * @version V1.0.0
- * @description HBase cell实体类
- * @date 2022/3/26 21:59
+ * @since  JDK1.8
+ *
  */
 public class HbaseCell implements Serializable {
 

@@ -8,8 +8,8 @@ import static com.luna.hbase.autoconfigure.HbaseProperties.HBASE_PREFIX;
 
 /**
  * @author Austin Wong
- * @description Hbase properties.
- * @date 2022/4/1 15:54
+ * Hbase properties.
+ * 2022/4/1 15:54
  * @since JDK1.8
  */
 @ConfigurationProperties(prefix = HBASE_PREFIX)
@@ -106,8 +106,6 @@ public class HbaseProperties {
                 DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS;
 
         private boolean blockWhenExhausted = DEFAULT_BLOCK_WHEN_EXHAUSTED;
-
-        private boolean jmxEnabled = DEFAULT_JMX_ENABLE;
 
         private String jmxNamePrefix = DEFAULT_JMX_NAME_PREFIX;
 
@@ -226,13 +224,12 @@ public class HbaseProperties {
             this.blockWhenExhausted = blockWhenExhausted;
         }
 
-        public boolean isJmxEnabled() {
-            return jmxEnabled;
-        }
-
         @Override
-        public void setJmxEnabled(boolean jmxEnabled) {
-            this.jmxEnabled = jmxEnabled;
+        public boolean getJmxEnabled() {
+            /**
+             *  Jmx must be false because there often exist an instance of GenericObjectPool.
+             */
+            return false;
         }
 
         @Override

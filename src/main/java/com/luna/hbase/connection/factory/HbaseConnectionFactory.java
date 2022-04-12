@@ -14,8 +14,8 @@ import java.util.Objects;
 /**
  * @author Allen Wong
  * @version V1.0.0
- * @description Hbase连接工厂
- * @date 2022/3/26 20:48
+ * Hbase连接工厂
+ * 2022/3/26 20:48
  */
 public class HbaseConnectionFactory extends BasePooledObjectFactory<Connection> {
 

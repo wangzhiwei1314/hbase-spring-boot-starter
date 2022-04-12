@@ -2,8 +2,8 @@ package com.luna.hbase.exception;
 
 /**
  * @author Austin Wong
- * @description Hbase异常
- * @date 2022/4/1 16:20
+ * Hbase异常
+ * 2022/4/1 16:20
  * @since JDK1.8
  */
 public class HbaseException extends RuntimeException{
